@@ -7,3 +7,4 @@ Step2- I will be performing operations through jenkins(CI/CD)
 		      5) kubernetes yaml:
               kubectl apply -f file.yaml
 Step3- I'm using Rolling Update 
+Step4 - for scaling we are using HPA ( horizatol Pod Autoscaler)
