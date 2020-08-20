@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    collectord.io/volume.1-logs-name: 'logs'
+    collectord.io/volume.1-logs-glob: '*log'
+  creationTimestamp: null
+  labels:
+    io.kompose.service: test-wiki
+  name: test-wiki
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25% 
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: test-wiki
+    spec:
+      containers:
+      - resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+        args:
+        - bash
+        - -c
+        - python3 /django/phai_web/manage.py makemigrations --merge --noinput --settings=phai_web.settings.dev && python3 /django/phai_web/manage.py migrate --noinput --settings=phai_web.settings.dev && python3 /django/phai_web/manage.py collectstatic --noinput --settings=phai_web.settings.dev && NEW_RELIC_CONFIG_FILE=/django/phai_web/newrelic.ini  && /usr/sbin/apachectl -DFOREGROUND && /opt/splunkforwarder/bin/splunk start
+        env:
+        image: AWS-Account-ID.dkr.ecr.us-east-1.amazonaws.com/ECR_REPO_NAME:1
+        name: test-wiki
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log/apache2/
+      restartPolicy: Always
+      volumes:
+      - name: logs
+        emptyDir: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:AWS-Account-ID:certificate/Certifiacte_key
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "300"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: test-wiki
+  name: test-wiki
+spec:
+  type: LoadBalancer
+  ports:
+  - name: "443"
+    port: 443
+    targetPort: 443
+  selector:
+    io.kompose.service: test-wiki
+status:
+  loadBalancer:
