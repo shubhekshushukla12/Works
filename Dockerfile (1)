@@ -1,0 +1,6 @@
+FROM centos:7
+MKDIR /install
+COPY /tmp/install.sh /install/install.sh
+RUN cd /install
+RUN sh install.sh
+
