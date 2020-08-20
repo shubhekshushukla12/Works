@@ -1,0 +1,9 @@
+Step1- For installation i have created .Sh file,i will call the script into docker
+Step2- I will be performing operations through jenkins(CI/CD)
+          1) Export the EKS cluster profile
+		      2) Create the ECR
+		      3) Build the image using docker build
+		      4) Push it to the ECR
+		      5) kubernetes yaml:
+              kubectl apply -f file.yaml
+Step3- I'm using Rolling Update 
