@@ -3,4 +3,5 @@ MKDIR /install
 COPY /tmp/install.sh /install/install.sh
 RUN cd /install
 RUN sh install.sh
+EXPOSE 80
 
